@@ -4,7 +4,7 @@ import './index.css';
 
 // Importación de módulos
 import useVoiceCommands from './hooks/useVoiceCommands';
-import { StarBackground } from './components/SharedComponents';
+import { StarBackground } from "./presentation/components/features/SharedComponents";
 
 // Vistas
 import Dashboard from './views/Dashboard';
