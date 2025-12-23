@@ -1,159 +1,87 @@
-// ============================================================
-// CUSTOM HOOK: useVoiceCommands (FIX NETWORK ERROR)
-// ============================================================
-
-import { useState, useEffect, useCallback, useRef } from 'react';
+// ARCHIVO 4 - JavaScript (REEMPLAZA tu archivo actual)
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { WebSpeechRecognitionAdapter, WebSpeechSynthesisAdapter } from '../../infrastructure/voice/speech.adapter.js';
+import { voiceService } from '../../application/services/voice.service.js';
 
 const useVoiceCommands = (onCommand) => {
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [isSupported, setIsSupported] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const [transcript, setTranscript] = useState('');
+    const [isSupported, setIsSupported] = useState(false);
 
-  // 👉 useRef evita recrear la instancia (CLAVE)
-  const recognitionRef = useRef(null);
+    const recognitionAdapterRef = useRef(null);
+    const synthesisAdapterRef = useRef(null);
 
-  // ============================================================
-  // INICIALIZACIÓN
-  // ============================================================
-  useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    useEffect(() => {
+        const adapter = new WebSpeechRecognitionAdapter();
+        recognitionAdapterRef.current = adapter;
+        synthesisAdapterRef.current = new WebSpeechSynthesisAdapter();
 
-    if (!SpeechRecognition) {
-      console.warn('Web Speech API no soportada');
-      setIsSupported(false);
-      return;
-    }
+        setIsSupported(adapter !== null);
 
-    setIsSupported(true);
+        if (adapter) {
+            adapter.onResult((newTranscript) => {
+                setTranscript(newTranscript);
+                const command = voiceService.processTranscript(newTranscript);
+                if (onCommand) onCommand(command);
+                synthesisAdapterRef.current?.speak(voiceService.getActionResponseMessage(command.action));
+            });
 
-    const recognition = new SpeechRecognition();
+            adapter.onError((error) => {
+                console.error('Error en reconocimiento de voz:', error);
+                if (error === 'network') {
+                    synthesisAdapterRef.current?.speak('Error de conexión. Revisa tu red.');
+                }
+                setIsListening(false);
+            });
+        }
 
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'es-ES';
-    recognition.maxAlternatives = 1;
+        return () => {
+            if (recognitionAdapterRef.current?.stopListening) {
+                recognitionAdapterRef.current.stopListening();
+            }
+            if (synthesisAdapterRef.current?.cancel) {
+                synthesisAdapterRef.current.cancel();
+            }
+        };
+    }, [onCommand]);
 
-    // ---- RESULTADO ----
-    recognition.onresult = (event) => {
-      const speechResult =
-        event.results[0][0].transcript.toLowerCase();
-      setTranscript(speechResult);
-      processCommand(speechResult);
+    const startListening = useCallback(async () => {
+        if (!recognitionAdapterRef.current || isListening) return;
+
+        try {
+            setTranscript('');
+            await recognitionAdapterRef.current.startListening();
+            setIsListening(true);
+            if (synthesisAdapterRef.current?.speak) {
+                synthesisAdapterRef.current.speak('Escuchando');
+            }
+        } catch (error) {
+            console.error('Error al iniciar escucha:', error);
+            setIsListening(false);
+        }
+    }, [isListening]);
+
+    const stopListening = useCallback(() => {
+        if (recognitionAdapterRef.current?.stopListening) {
+            recognitionAdapterRef.current.stopListening();
+        }
+        setIsListening(false);
+    }, []);
+
+    const speak = useCallback((text) => {
+        if (synthesisAdapterRef.current?.speak) {
+            synthesisAdapterRef.current.speak(text);
+        }
+    }, []);
+
+    return {
+        isListening,
+        transcript,
+        isSupported,
+        startListening,
+        stopListening,
+        speak
     };
-
-    // ---- CUANDO TERMINA ----
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    // ---- ERRORES (FIX NETWORK) ----
-    recognition.onerror = (event) => {
-      console.error('🎤 Speech error:', event.error);
-      setIsListening(false);
-
-      if (event.error === 'network') {
-        speak('Error de conexión con el servicio de voz. Intenta de nuevo.');
-      }
-
-      if (event.error === 'not-allowed') {
-        alert('Permite el acceso al micrófono en el navegador');
-      }
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      recognition.abort();
-    };
-  }, []);
-
-  // ============================================================
-  // PROCESAR COMANDOS
-  // ============================================================
-  const processCommand = (command) => {
-    console.log('🎤 Comando:', command);
-
-    const commands = {
-      'inicio': 'dashboard',
-      'volver': 'dashboard',
-      'menu principal': 'dashboard',
-
-      'lugares': 'lugares',
-      'lugares favoritos': 'lugares',
-
-      'contactos': 'contactos',
-
-      'rutas': 'rutas',
-
-      'ubicación': 'ubicacion',
-      'dónde estoy': 'ubicacion',
-
-      'ayuda': 'help',
-      'comandos': 'help'
-    };
-
-    for (const [key, action] of Object.entries(commands)) {
-      if (command.includes(key)) {
-        onCommand?.(action);
-        speak(`Abriendo ${action}`);
-        return;
-      }
-    }
-
-    speak('Comando no reconocido. Di ayuda para conocer los comandos.');
-  };
-
-  // ============================================================
-  // TEXT TO SPEECH
-  // ============================================================
-  const speak = (text) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  // ============================================================
-  // INICIAR ESCUCHA (PROTEGIDO)
-  // ============================================================
-  const startListening = useCallback(() => {
-    const recognition = recognitionRef.current;
-
-    if (!recognition || !isSupported || isListening) return;
-
-    try {
-      setTranscript('');
-      setIsListening(true);
-      recognition.start();
-      speak('Escuchando');
-    } catch (err) {
-      console.error('Error startListening:', err);
-      setIsListening(false);
-    }
-  }, [isListening, isSupported]);
-
-  // ============================================================
-  // DETENER ESCUCHA
-  // ============================================================
-  const stopListening = useCallback(() => {
-    const recognition = recognitionRef.current;
-    if (recognition) {
-      recognition.stop();
-      setIsListening(false);
-    }
-  }, []);
-
-  return {
-    isListening,
-    transcript,
-    isSupported,
-    startListening,
-    stopListening,
-    speak
-  };
 };
 
 export default useVoiceCommands;
