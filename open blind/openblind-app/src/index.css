@@ -1,0 +1,319 @@
+/* ==================== 1. VARIABLES & UNIVERSO ==================== */
+:root {
+  /* Fondo Profundo (Universo) */
+  --bg-deep: #0f0c29;
+  --bg-gradient: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+  
+  /* Acentos Neón (Brillantes y Llamativos) */
+  --neon-purple: #b026ff;
+  --neon-blue: #00d4ff;
+  --neon-pink: #ff007f;
+  --neon-amber: #ffae00;
+  --neon-green: #00ff7f;
+  
+  /* Textos */
+  --text-main: #FFFFFF;
+  --text-muted: #BDBDBD;
+  
+  /* Glassmorphism (Vidrio) */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  /* Sombras de Neón */
+  --shadow-neon: 0 0 15px rgba(176, 38, 255, 0.4);
+}
+
+/* Reset básico */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg-deep); /* Fallback */
+  color: var(--text-main);
+  min-height: 100vh;
+  margin: 0;
+  overflow: hidden; /* Evita scroll doble por las animaciones */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==================== 2. LLUVIA DE ESTRELLAS (STAR RAIN) ==================== */
+.star-container {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+  background: var(--bg-gradient);
+}
+
+.star {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0;
+  animation: fall linear infinite;
+}
+
+/* Animación de caída */
+@keyframes fall {
+  0% { transform: translateY(-5vh) scale(0.5); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(105vh) scale(1.2); opacity: 0; }
+}
+
+/* ==================== 3. CONTENEDOR MÓVIL ==================== */
+.mobile-container {
+  position: relative;
+  z-index: 10; /* Encima de las estrellas */
+  height: 100vh;
+  display: flex; flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  background: transparent; /* Dejar ver las estrellas */
+}
+
+/* ==================== 4. NAVBAR (Transparente) ==================== */
+.navbar {
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 1rem 1.5rem;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--glass-border);
+  position: sticky; top: 0; z-index: 50;
+}
+
+.navbar-title { 
+  font-weight: 800; font-size: 1.4rem; letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #fff, #ccc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: white;
+  width: 40px; height: 40px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+
+/* ==================== 5. CARRUSEL 3D (DASHBOARD) ==================== */
+.carousel-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  perspective: 1000px;
+  padding-bottom: 2rem;
+}
+
+.carousel-track {
+  width: 100%; height: 400px;
+  display: flex; justify-content: center; align-items: center;
+  position: relative;
+}
+
+/* Tarjeta Gigante del Carrusel */
+.swipe-card {
+  position: absolute;
+  width: 280px; height: 380px;
+  background: rgba(20, 20, 35, 0.7);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 35px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  cursor: grab;
+  overflow: hidden;
+}
+.swipe-card:active { cursor: grabbing; }
+
+.card-icon-large {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
+}
+
+.card-title-large {
+  font-size: 2rem; font-weight: 800;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: white;
+}
+.card-desc-large { font-size: 1rem; color: var(--text-muted); line-height: 1.4; }
+
+/* Indicadores (Puntos abajo) */
+.indicators { display: flex; gap: 10px; margin-top: 2rem; }
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); transition: all 0.3s;
+}
+.dot.active { background: var(--neon-blue); transform: scale(1.5); box-shadow: 0 0 10px var(--neon-blue); }
+
+/* ==================== 6. BOTÓN DE VOZ PRINCIPAL ==================== */
+.voice-main-btn {
+  margin: 0 auto;
+  width: calc(110% - 3rem);
+  transform: translateY(-40px);
+  padding: 1.2rem;
+  border: none; border-radius: 25px;
+  color: white; font-size: 1.1rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  cursor: pointer;
+  text-transform: uppercase; letter-spacing: 0px;
+}
+
+/* ==================== 7. VISTAS INTERNAS (LISTAS) ==================== */
+.view-content {
+  padding: 1.5rem 1rem;
+  padding-bottom: 120px; /* Espacio para el FAB */
+  overflow-y: auto; /* Permite scroll interno */
+  height: calc(100vh - 70px); /* Resta altura del navbar */
+  /* Ocultar barra scroll */
+  scrollbar-width: none;
+}
+.view-content::-webkit-scrollbar { display: none; }
+
+/* Tarjetas de Lista (Premium Dark) */
+.premium-card {
+  background: rgba(30, 30, 45, 0.6);
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  margin-bottom: 1rem; padding: 1rem; border-radius: 24px;
+  display: flex; align-items: center; gap: 1rem; position: relative; overflow: hidden;
+  transition: transform 0.2s;
+}
+.premium-card:active { transform: scale(0.98); background: rgba(40, 40, 60, 0.8); }
+
+.avatar-circle {
+  width: 52px; height: 52px; border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; color: white;
+  background: linear-gradient(135deg, var(--neon-purple), #5B21B6);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  flex-shrink: 0;
+}
+
+.info-container { flex: 1; overflow: hidden; }
+.info-title { font-size: 1.1rem; font-weight: 700; color: white; margin-bottom: 4px; }
+.info-subtitle { font-size: 0.9rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+
+/* Botones de acción pequeños */
+.action-buttons { display: flex; gap: 8px; }
+.action-btn-mini {
+  width: 40px; height: 40px; border-radius: 14px; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  background: rgba(255,255,255,0.08); color: var(--text-muted);
+  transition: all 0.2s;
+}
+.action-btn-mini:hover { background: rgba(255,255,255,0.2); color: white; }
+.action-btn-mini.call { 
+  background: rgba(0, 255, 127, 0.15); color: var(--neon-green); border: 1px solid rgba(0, 255, 127, 0.3);
+}
+.action-btn-mini.delete:hover { background: rgba(255, 0, 80, 0.2); color: #ff0050; }
+
+/* ==================== 8. MODALES Y FORMULARIOS (DARK) ==================== */
+.modal-backdrop {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);
+  z-index: 100;
+}
+
+.modal-content {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) !important;
+  width: 90%; max-width: 340px;
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 30px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  z-index: 101; padding: 1.5rem;
+  color: white;
+}
+
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 1rem;
+}
+.modal-header h3 { font-size: 1.3rem; }
+.modal-header.danger h3 { color: #ff4444; }
+
+/* Inputs Oscuros */
+.form-group { margin-bottom: 1.2rem; }
+.form-label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
+.form-input {
+  width: 100%; padding: 1rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.3);
+  border-radius: 16px; font-size: 1rem; color: white;
+  outline: none;
+}
+.form-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2); }
+
+/* Botones del Modal */
+.modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+.btn-modal {
+  flex: 1; padding: 1rem; border-radius: 16px; border: none;
+  font-weight: 700; cursor: pointer; font-size: 1rem;
+}
+.btn-cancel { background: rgba(255,255,255,0.1); color: white; }
+.btn-confirm { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); }
+.btn-delete { background: #ff4444; color: white; box-shadow: 0 0 15px rgba(255, 68, 68, 0.4); }
+
+/* ==================== 9. BOTÓN FLOTANTE (FAB) ==================== */
+.fab-container {
+  position: fixed; bottom: 2rem; left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+}
+.btn-fab {
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+  color: white; border: none;
+  padding: 1rem 2rem; border-radius: 40px;
+  font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+  cursor: pointer; white-space: nowrap;
+}
+
+/* ==================== 10. SPLASH SCREEN ==================== */
+.splash-screen {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 9999; background: var(--bg-deep);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+/* ==================== 11. RESPONSIVE DESKTOP ==================== */
+@media (min-width: 500px) {
+  body {
+    display: flex; justify-content: center; align-items: center;
+    background: #050510; /* Fondo negro externo en PC */
+  }
+  .mobile-container {
+    width: 100%;
+    border-radius: 40px;
+    height: 90vh;
+    box-shadow: 0 0 0 10px #222, 0 0 50px rgba(0,0,0,0.5); /* Borde tipo teléfono */
+    overflow: hidden;
+    background: var(--bg-deep); /* El fondo estrellado va dentro */
+  }
+  .star-container {
+    /* En PC, limitamos las estrellas al contenedor móvil para que se vea real */
+    position: absolute; width: 100%; height: 100%;
+    border-radius: 40px;
+  }
+  .modal-backdrop, .splash-screen {
+    position: absolute; border-radius: 40px;
+  }
+  .fab-container { bottom: 3rem; }
+}
