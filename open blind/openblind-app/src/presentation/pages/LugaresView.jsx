@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { API_URL } from '../config/constants';
-import { Header, AnimatedButton, Modal } from '../components/SharedComponents';
+import { motion, AnimatePresence } from "framer-motion"; 
+import { API_URL } from "../../application/utils/constants"; 
+import { Header, AnimatedButton, Modal } from "../components/features/SharedComponents"; 
 
 const LugaresView = ({ onBack }) => {
   const [lugares, setLugares] = useState([]);
